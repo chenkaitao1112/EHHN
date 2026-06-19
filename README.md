@@ -3,7 +3,7 @@
  # The main text code will be uploaded later
 
 > **Note:**
-> This repository contains the official code implementation for the paper **"Event-Driven Heterogeneous Hypergraph Learning for Next-Activity Prediction on Object-Centric Event Logs"** .
+> This repository contains the official code implementation for the paper **"EHHN: An Event-driven Heterogeneous Hypergraph Network for Object-Centric Next Activity Prediction"** .
 
 This project proposes an event-driven Heterogeneous Hypergraph Learning approach specifically designed for Object-Centric Event Logs (OCEL) to tackle the Next-Activity Prediction task in process mining.
 
