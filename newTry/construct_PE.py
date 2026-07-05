@@ -509,9 +509,7 @@ def build_prefix_subgraphs(
         if num_events < 2:
             continue
 
-        # -------------------------
-        # 核心修改：遍历所有可能的前缀长度（从1到num_events-1）
-        # -------------------------
+       
         for prefix_length in range(1, num_events):
             # 1. 确定当前前缀窗口（关键逻辑）
             if prefix_length <= window_size:
@@ -538,7 +536,7 @@ def build_prefix_subgraphs(
             # 从全局2-hop范围中过滤出“过去”的事件
             potential_context_events = nodes_dict[po]["events"]
             for e in potential_context_events:
-                if event_time_dict[e] <= cutoff_timestamp:
+                if event_time_dict[e] < cutoff_timestamp:
                     valid_events.add(e)
 
             # -------------------------------------------------------
