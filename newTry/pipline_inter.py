@@ -93,7 +93,7 @@ if __name__ == "__main__":
         #转为对象特征矩阵
         X_obj, obj2idx, feature_names_obj = transform_objects_to_features(df_objects, categorical_cols, numeric_cols)
         #增加绝对时间特征
-        df_events_ab, event_time_dict = add_absolute_time_features_v2(df_events)
+        df_events_ab, event_time_dict = add_absolute_time_features(df_events)
         #omap这列存了这个事件关联的对象，其实和关系表重复了，所以删掉
         df_events_updated = process_omap(df_events_ab)
         # pd.set_option('display.max_columns', None)
