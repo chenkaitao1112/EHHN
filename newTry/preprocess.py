@@ -244,7 +244,6 @@ def transform_objects_to_features(df, cat_cols, num_cols, id_col='object_id', ty
 
     return feature_matrix, id_map, feature_names, type_info
 
-
 def add_absolute_time_features(df_events):
     """
     给事件表添加绝对时间特征 (Sin/Cos 编码)
@@ -253,7 +252,7 @@ def add_absolute_time_features(df_events):
     df = df_events.copy()
 
     # 确保转换为 datetime 对象
-    df["timestamp"] = pd.to_datetime(df["timestamp"])
+    df["timestamp"] = pd.to_datetime(df["timestamp"], format='mixed')
 
     # 生成 ID -> Timestamp 字典
     event_time_dict = dict(zip(df["event_id"], df["timestamp"]))
@@ -286,55 +285,7 @@ def add_absolute_time_features(df_events):
     return df, event_time_dict
 
 
-def add_absolute_time_features_v2(df_events):
-    """
-    统一抹除毫秒，解决格式不一致导致的报错
-    """
-    df = df_events.copy()
 
-    # --- 1. 暴力统一字符串格式 ---
-    # 逻辑：如果带小数点，只取小数点前面的部分；如果不带，保持原样
-    # 这种方式比正则快，且能处理 2016-01-20T19:19:06 和 2016-01-01T13:34:53.911000
-    df["timestamp"] = df["timestamp"].astype(str).str.split('.').str[0]
-
-    if "vmap_start_timestamp" in df.columns:
-        df["vmap_start_timestamp"] = df["vmap_start_timestamp"].astype(str).str.split('.').str[0]
-
-    # --- 2. 统一解析 ---
-    # 现在的格式全部统一成了 %Y-%m-%dT%H:%M:%S
-    df["timestamp"] = pd.to_datetime(df["timestamp"])
-
-    # 建立 ID -> Timestamp 字典
-    event_time_dict = dict(zip(df["event_id"], df["timestamp"]))
-
-    # 计算时长 (可选)
-    # if "vmap_start_timestamp" in df.columns:
-    #     df["vmap_start_timestamp"] = pd.to_datetime(df["vmap_start_timestamp"])
-    #     df["proc_duration_sec"] = (df["timestamp"] - df["vmap_start_timestamp"]).dt.total_seconds()
-    #     df["proc_duration_sec"] = df["proc_duration_sec"].fillna(0).clip(lower=0)
-
-    # --- 3. 提取循环编码特征 ---
-    weekday = df["timestamp"].dt.weekday
-    hour = df["timestamp"].dt.hour
-    minute = df["timestamp"].dt.minute
-    second = df["timestamp"].dt.second
-
-    df["weekday_sin"] = np.sin(2 * np.pi * weekday / 7)
-    df["weekday_cos"] = np.cos(2 * np.pi * weekday / 7)
-    df["hour_sin"] = np.sin(2 * np.pi * hour / 24)
-    df["hour_cos"] = np.cos(2 * np.pi * hour / 24)
-    df["minute_sin"] = np.sin(2 * np.pi * minute / 60)
-    df["minute_cos"] = np.cos(2 * np.pi * minute / 60)
-
-    # 既然抹掉了毫秒，秒级特征依然保留
-    df["second_sin"] = np.sin(2 * np.pi * second / 60)
-    df["second_cos"] = np.cos(2 * np.pi * second / 60)
-
-    # --- 4. 移除原始列 ---
-    df = df.drop(columns=["timestamp", "vmap_start_timestamp"], errors='ignore')
-
-    print(f"✅ 格式已强行统一，毫秒已剔除。")
-    return df, event_time_dict
 
 
 def encode_event_table(df_events):
